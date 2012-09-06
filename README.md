@@ -28,7 +28,7 @@ General Concepts
 	// another example of abstraction - bare minimum to specify are the ids of the 2 joined objects
 	boxy.makeRevoluteJoint({aid:'ball1',bid:'ball2'});
     
-	// (commented) example of how to attach your own image to box2d objects using boxy
+	// example of how to attach your own image to box2d objects using boxy
         boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);
         boxy.setBodyImage('ball2', 'images/dot.png', 50, 50);
   
