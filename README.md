@@ -7,7 +7,10 @@ I created this library as a method of simplify the instantiation and creation of
 
 The idea is to abstract things to the point where you can interact with the 2d objects in HTML5 coordinate space and using HTML5 nominclature.
 
-Example:
+Example: http://frogstomper.com/boxy/index.html
+
+General Concepts
+================
 
 	/* 
    	First, instantiate box2d with the div id of the physics-rendering canvas (TODO: should be CSS select syntax)
