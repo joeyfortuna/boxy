@@ -29,6 +29,8 @@ General Concepts
 	boxy.makeRevoluteJoint({aid:'ball1',bid:'ball2'});
     
 	// (commented) example of how to attach your own image to box2d objects using boxy
+        boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);
+        boxy.setBodyImage('ball2', 'images/dot.png', 50, 50);
   
   
   Enjoy!
