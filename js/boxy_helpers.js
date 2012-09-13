@@ -1,4 +1,3 @@
-// from: http://stackoverflow.com/questions/4576724/dotted-stroke-in-canvas
 var CP = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
 if (CP && CP.lineTo) {
 	CP.dashedLine = function(x,y,x2,y2,dashArray) {

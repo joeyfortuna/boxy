@@ -141,6 +141,64 @@ var BOXY=function(tid) {
       	if (typeof p=='undefined') return d;
       	else return p;
       }
+      
+      function getJointAttr(jid,val) {
+      	var j=jointById(jid);
+      	if (attr='anchors') {
+      		var aa=j.GetAnchorA();      		
+      		aa.x*=scale; aa.y*=scale;
+      		var ab=j.GetAnchorB();
+      		ab.x*=scale;ab.y*=scale;
+      		var aga=j.GetGroundAnchorA();
+      		aga.x*=scale;aga.y*=scale;
+      		var agb=j.GetGroundAnchorB();
+      		agb.x*=scale;agb.y*=scale;
+      		
+      		return {aa:aa,ab:ab,aga:aga,agb:agb}
+      	}
+      	return null;
+      }
+      
+      function makePulleyJoint(args) {
+      	var bA=bodyById(args.aid);
+      	var bB=bodyById(args.bid);
+      	var aA=param(args.anchorA,bA.GetLocalCenter());
+      	var aB=param(args.anchorB,bB.GetLocalCenter());
+      	var wcA=bA.GetWorldCenter();
+      	var gA=param(args.groundAnchorA,{x:wcA.x,y:0});
+      	var wcB=bB.GetWorldCenter();
+      	var gB=param(args.groundAnchorB,{x:wcB.x,y:0});
+      	var lA=param(args.lengthA,3);
+      	var lB=param(args.lengthB,3);
+      	var mlA=param(args.maxLengthA,6);
+      	var mlB=param(args.maxLengthB,6);
+      	var bM=param(args.enableMotor,false);
+      	var mS=param(args.motorSpeed,0);
+      	var mT=param(args.maxTorque,0);
+      	var ud=param(args.jointid,'jntPul_'+args.aid+'_'+args.bid);
+      	return pulleyJoint(ud,bA,bB,aA,aB,gA,gB,lA,lB,mlA,mlB,bM,mS,mT) 
+      }
+      
+      function pulleyJoint(ud,bA,bB,aA,aB,gA,gB,lA,lB,mlA,mlB,bM,mS,mT) {
+      
+      	var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
+        pj.bodyA=bA;
+        pj.bodyB=bB;
+        pj.localAnchorA=aA;
+        pj.localAnchorB=aB;   
+        pj.groundAnchorA=gA;
+        pj.groundAnchorB=gB;
+        pj.maxLengthA=mlA;
+        pj.maxLengthB=mlA;
+       	pj.lengthA=lA;
+       	pj.lengthB=lB;      
+       	pj.enableMotor = bM;
+      	var joint= world.CreateJoint(pj);      
+      	joint.SetUserData(ud);
+      	return joint;
+      }
+      
+      
       function makeRevoluteJoint(args) {
       		var bA=bodyById(args.aid);
       		var bB=bodyById(args.bid);
@@ -166,10 +224,17 @@ var BOXY=function(tid) {
       		if (db==null) db=bB.GetLocalCenter();
       		else db.y=bB.GetLocalCenter().y;
       		
+      		var ca=param(args.centerA,false);
+      		if (ca) 
+      			args.anchorA={x:0,y:0};
+      			
+      		var cb=param(args.centerB,false);
+      		if (cb) 
+      			args.anchorB={x:0,y:0};
+      				
+      			
       		var pA=param(args.anchorA,da);
-      		var pB=param(args.anchorB,db);   
-      		
-      		
+      		var pB=param(args.anchorB,db);         		
       		
       		var ud=param(args.jointid,'jntRev_'+args.aid+'_'+args.bid);
       		
@@ -609,6 +674,7 @@ var BOXY=function(tid) {
 			clone : clone,
 			removeBody : removeBody,
 			makeRevoluteJoint: makeRevoluteJoint,
+			makePulleyJoint : makePulleyJoint,
 			toggleGravity: toggleGravity,
 			setContactCallback:setContactCallback,			
 			b2Body: b2Body,
@@ -630,6 +696,7 @@ var BOXY=function(tid) {
 			makeDynamicBall:makeDynamicCircle ,
 			setBodyAttr : setBodyAttr,
 			getBodyAttr: getBodyAttr,
+			getJointAttr : getJointAttr,
 			nudge:nudge
 		}
 };
