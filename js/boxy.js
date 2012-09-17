@@ -597,9 +597,9 @@ var BOXY=function(tid) {
        	 }; 
          
          
-	 function setMouseDown(bVal) {
-	 	isMouseDown=bVal;
-	 }
+	 	function setMouseDown(bVal) {
+	 		isMouseDown=bVal;
+	 	}
 	 
          function handleMouseMove(e) {
          	
@@ -612,8 +612,8 @@ var BOXY=function(tid) {
 		
 	    }
 	    else {
-		mouseX = (e.clientX - canvasPosition.x) / scale;
-		mouseY = (e.clientY - canvasPosition.y) / scale;
+			mouseX = (e.clientX - canvasPosition.x) / scale;
+			mouseY = (e.clientY - canvasPosition.y) / scale;
 	    }
          };
          

@@ -1,0 +1,123 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<canvas id="canvas" width="900" height="500" style="border:2px solid blue;"></canvas>
+
+<div id="dbg" style="float:left;border:1px solid red;margin:15px;width:100px;height:100px;font-family:arial;font-size:12px;"></div>
+<div id="dbg1" style="margin:15px;float:left;border:1px solid blue;width:100px;height:100px;font-family:arial;font-size:12px;"></div>
+<div id="dbg2" style="margin:15px;float:left;border:1px solid green;width:100px;height:100px;font-family:arial;font-size:12px;"></div>
+<script>
+
+	var touches=[];
+	var rects=[];
+	var newrect=null;
+	function touchCount() {
+		
+		return touches.length;
+		
+	
+	}
+	function clearCanvas() {
+		var canvaselem = document.getElementById("canvas");
+		var ctx = canvaselem.getContext("2d");
+		var canvaswidth = canvaselem.width-0;
+		var canvasheight = canvaselem.height-0;           
+		ctx.clearRect(0,0,canvaswidth,canvasheight);
+	}
+	function drawRects() {
+		var canvaselem = document.getElementById("canvas");
+		var ctx = canvaselem.getContext("2d");
+		if (rects.length>0) {
+			for (var i=0;i<rects.length;i++) {
+					 	ctx.beginPath();	
+					 	var r=rects[i];
+					 	document.getElementById('dbg2').innerHTML='rects: '+r;
+					 	ctx.rect(r[0],r[1],r[2],r[3]);
+						ctx.strokeStyle='a4a4a4';
+						ctx.lineWidth=4;
+						ctx.stroke();
+						
+					 }
+				}
+	}
+	
+	function handleMouseMove(e) {
+		if (e.targetTouches) {
+			e.preventDefault();
+		
+			var str="";
+			for (var i in e.targetTouches) {
+				var t=e.targetTouches[i];
+				if (t.clientX)
+					str+=t.clientX+','+t.clientY+'<br>';
+				
+			}
+			document.getElementById('dbg').innerHTML=str;
+			
+			if (touchCount()>=2) {
+				var a=touches[0];
+				var b=touches[1];
+				
+				var canvaselem = document.getElementById("canvas");
+				var ctx = canvaselem.getContext("2d");
+				clearCanvas();
+				ctx.beginPath();							
+				var tx=(a.clientX<=b.clientX)?a.clientX:b.clientX;
+				var ty=(a.clientY<=b.clientY)?a.clientY:b.clientY;		
+				ctx.rect(tx,ty,Math.abs(b.clientX-a.clientX),Math.abs(b.clientY-a.clientY));
+				ctx.strokeStyle='black';
+				ctx.lineWidth=4;
+				ctx.stroke();
+				newrect=[tx,ty,Math.abs(b.clientX-a.clientX),Math.abs(b.clientY-a.clientY)];
+				
+				drawRects();
+				
+			}
+			
+			
+		}
+	}
+
+		
+      	document.addEventListener("touchend", function(e) {      		
+           updateTouch(e,'d');
+         	
+           if (touchCount()<2 && newrect) {
+           	rects[rects.length]=newrect;
+           	clearCanvas();
+         	drawRects();
+          	newrect=null;
+          }
+         }, true);
+         
+        function updateTouch(e,v) {
+        	if (!e.targetTouches) return;
+        	touches=[];
+        	for (var k in e.targetTouches) {
+           		var x=e.targetTouches[k];
+           		if (typeof x=='object' && x.identifier) {
+           			if (v=='a') {
+           				touches[touches.length]=x;
+           			}
+           		}           	
+          	}	        
+          	document.getElementById('dbg1').innerHTML='tt: '+e.targetTouches.length;	
+        }
+        
+        
+      	
+      	
+      	
+      	document.addEventListener("touchstart", function(e) {
+      		updateTouch(e,'a');
+      		 handleMouseMove(e);            
+           	document.addEventListener("touchmove", handleMouseMove, true);
+      	},true);
+</script>
+
+
+</body>
+</div>
