@@ -57,9 +57,9 @@
 			}
 			document.getElementById('dbg').innerHTML=str;
 			
-			if (touchCount()>=2) {
-				var a=touches[0];
-				var b=touches[1];
+			if (e.targetTouches.length>=2) {
+				var a=e.targetTouches[0];
+				var b=e.targetTouches[1];
 				
 				var canvaselem = document.getElementById("canvas");
 				var ctx = canvaselem.getContext("2d");
@@ -83,7 +83,7 @@
 
 		
       	document.addEventListener("touchend", function(e) {      		
-           updateTouch(e,'d');
+           //updateTouch(e,'d');
          	
            if (touchCount()<2 && newrect) {
            	rects[rects.length]=newrect;
@@ -93,18 +93,20 @@
           }
          }, true);
          
+         
+         
         function updateTouch(e,v) {
         	if (!e.targetTouches) return;
         	touches=[];
         	for (var k in e.targetTouches) {
            		var x=e.targetTouches[k];
            		if (typeof x=='object' && x.identifier) {
-           			if (v=='a') {
+           			//if (v=='a') {
            				touches[touches.length]=x;
-           			}
+           			//}
            		}           	
           	}	        
-          	document.getElementById('dbg1').innerHTML='tt: '+e.targetTouches.length;	
+          	document.getElementById('dbg1').innerHTML=v+' = tt: '+e.targetTouches.length;	
         }
         
         
@@ -112,8 +114,8 @@
       	
       	
       	document.addEventListener("touchstart", function(e) {
-      		updateTouch(e,'a');
-      		 handleMouseMove(e);            
+      		//updateTouch(e,'a');
+      		handleMouseMove(e);            
            	document.addEventListener("touchmove", handleMouseMove, true);
       	},true);
 </script>

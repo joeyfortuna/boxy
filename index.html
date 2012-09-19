@@ -8,7 +8,7 @@
 <script>
 
 function contact(a, b) {
-
+	
 }
 
 function update(ctx) {
@@ -79,7 +79,7 @@ function initPage() {
       	//boxy.setDebug();
       	boxy.setUpdate();
       	//boxy.toggleGravity();
-      	//boxy.setContactCallback(contact);
+      	boxy.setContactCallback(contact);
       	boxy.setUpdateCallback(update);  
       	var ball1=boxy.makeDynamicBall('ball1', .7, 2, 8);
       	var ball2=boxy.clone('ball1','ball2', 15, 8);
@@ -92,8 +92,8 @@ function initPage() {
     	var post=boxy.makeStaticBox('post',1.5,2,9,8);
    		var roid=boxy.makeDynamicBall('roid', 2.2, 2, 8);
       	boxy.setBodyImage('roid', 'images/roid.jpg', 150,150);
-      	boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
-     	boxy.makePulleyJoint({jointid:'pull1',aid:'ball1',bid:'ball2',maxLengthA:15,maxLengthB:15,lengthA:10,lengthB:10});
+    boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
+    boxy.makePulleyJoint({jointid:'pull1',aid:'ball1',bid:'ball2',maxLengthA:15,maxLengthB:15,lengthA:10,lengthB:10});
         boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);
       	boxy.setBodyImage('ball2', 'images/dot.png', 50, 50);
       //	boxy.setBodyImage('ball3', 'images/dot.png', 50, 50);
@@ -108,10 +108,12 @@ function initPage() {
 
 </head>
 <body onload="initPage();">
-<center>
+<center> 
+
+
 <canvas id="canvas" width="500" height="500"
 			style="background-color:#ffffff;border:2px solid #898989;"></canvas>
-
-
+<button ontouchstart="contact(1,2);">play</button>
+<div id="boxyDebug"></div>
 </body>
 </html>
