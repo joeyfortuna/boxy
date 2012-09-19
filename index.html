@@ -83,8 +83,8 @@ function initPage() {
       	boxy.setUpdateCallback(update);  
       	var ball1=boxy.makeDynamicBall('ball1', .7, 2, 8);
       	var ball2=boxy.clone('ball1','ball2', 15, 8);
-     //	var ball3=boxy.clone('ball1','ball3', 15, 10);
-      //var ball4=boxy.clone('ball1','ball4', 2, 10);
+     	var ball3=boxy.clone('ball1','ball3', 15, 10);
+      	var ball4=boxy.clone('ball1','ball4', 2, 10);
     /*	boxy.makeRevoluteJoint({aid:'ball1',bid:'ball2'});
         boxy.makeRevoluteJoint({aid:'ball2',bid:'ball3'});
         boxy.makeRevoluteJoint({aid:'ball3',bid:'ball4'});
@@ -96,8 +96,11 @@ function initPage() {
     boxy.makePulleyJoint({jointid:'pull1',aid:'ball1',bid:'ball2',maxLengthA:15,maxLengthB:15,lengthA:10,lengthB:10});
         boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);
       	boxy.setBodyImage('ball2', 'images/dot.png', 50, 50);
-      //	boxy.setBodyImage('ball3', 'images/dot.png', 50, 50);
-     // 	boxy.setBodyImage('ball4', 'images/dot.png', 50, 50);
+      	boxy.setBodyImage('ball3', 'images/dot.png', 50, 50);
+      	
+      	
+     
+      	boxy.setBodyImage('ball4', 'images/dot.png', 50, 50);
       	//boxy.setBodyImage('box1', 'images/baton.jpg', 16, 100);
       	
       	

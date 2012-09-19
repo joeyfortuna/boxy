@@ -564,7 +564,7 @@ var BOXY=function(tid) {
       
       
       function update() {      	
-      		
+      		//echo(mouseJoints.count,true);
             if (mouseJoints.count>0) {
               	for (var i in mouseJoints) {
               		var mmj=mouseJoints[i];    
