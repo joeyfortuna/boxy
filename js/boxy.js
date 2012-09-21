@@ -537,7 +537,6 @@ var BOXY=function(tid) {
       		for (var tid in touches) {
       			var t=touches[tid];
       			if (v=='a' && mouseJoints[tid]==null && t.identifier) {
-      				
 	      			var mx=(t.clientX-canvasPosition.x)/scale;
 					var my=(t.clientY-canvasPosition.y)/scale;	
 	            	var mpvec = new b2Vec2(mx, my);
@@ -550,9 +549,10 @@ var BOXY=function(tid) {
 	           		
 	           		if (mouseJoints[tid].b!=null) {
 	           			var bobj=bodies[mouseJoints[tid].b.GetUserData()]; 
-		   				if (bobj!=null) {
-		            		if (bobj.toucheable) {         				mouseJoints[tid]={touch:t,b:mouseJoints[tid].b,mj:null,x:mx,y:my};   
-		            		mouseJoints[tid].mj=makeMouseJoint(mouseJoints[tid]);		            			
+		   			if (bobj!=null) {
+		            			if (bobj.toucheable) {         				
+							mouseJoints[tid]={touch:t,b:mouseJoints[tid].b,mj:null,x:mx,y:my};   
+							mouseJoints[tid].mj=makeMouseJoint(mouseJoints[tid]);		            			
 	         				}
 	         			}
 	         			else {
@@ -565,7 +565,7 @@ var BOXY=function(tid) {
 	           	}
 	           	else if (t.identifier && mouseJoints[tid]!=null) {
 	           		var mx=(t.clientX-canvasPosition.x)/scale;
-					var my=(t.clientY-canvasPosition.y)/scale;	
+				var my=(t.clientY-canvasPosition.y)/scale;	
 	           		mouseJoints[tid].x=mx;
 	           		mouseJoints[tid].y=my;
 	           	}
@@ -578,7 +578,8 @@ var BOXY=function(tid) {
          		if (!mj.mpvec) continue;
          		var mousePVec=mj.mpvec;     		
          		
-	            if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+	            if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {               
+	               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
 	                  mouseJoints[k].b = fixture.GetBody();
 	                  
 	                  return false;
@@ -599,46 +600,46 @@ var BOXY=function(tid) {
                 }
             }            
             
-            var canvaselem = document.getElementById("canvas");
-			var context = canvaselem.getContext("2d");
-			var canvaswidth = canvaselem.width-0;
-			var canvasheight = canvaselem.height-0;           
-			var bl=world.GetBodyList();
-      	 	world.Step(1 / 60, 10, 10);
-            if (bDrawDebug) world.DrawDebugData();
-            else context.clearRect(0,0,canvaswidth,canvasheight);
-            world.ClearForces();
-       		for (var b=bl;b;b=b.GetNext()) {        		
-        		var ud=b.GetUserData();
-        		if (bodies[ud]==null) continue;
-        		bodies[ud]['angle']=b.GetAngle();
-        		var img=bodies[ud].imgObj;
-        		if (img==null) continue;        		
-        		var position=b.GetPosition();        		
-           		context.save();					
-           		context.translate(position.x*scale,position.y*scale); 
+		var canvaselem = document.getElementById("canvas");
+		var context = canvaselem.getContext("2d");
+		var canvaswidth = canvaselem.width-0;
+		var canvasheight = canvaselem.height-0;           
+		var bl=world.GetBodyList();
+		world.Step(1 / 60, 10, 10);
+		if (bDrawDebug) world.DrawDebugData();
+		else context.clearRect(0,0,canvaswidth,canvasheight);
+		world.ClearForces();
+		for (var b=bl;b;b=b.GetNext()) {        		
+			var ud=b.GetUserData();
+			if (bodies[ud]==null) continue;
+			bodies[ud]['angle']=b.GetAngle();
+			var img=bodies[ud].imgObj;
+			if (img==null) continue;        		
+			var position=b.GetPosition();        		
+			context.save();					
+			context.translate(position.x*scale,position.y*scale); 
 				context.rotate(b.GetAngle());						
 				context.drawImage(img.img,-(img.w/2)+img.x,-(img.h/2)+img.y,img.w,img.h);
 				context.restore();				
-					
-            }
-            
-            
-            if (updateCallback!=null) updateCallback(context);
+
+		}
+
+
+		if (updateCallback!=null) updateCallback(context);
             
             
       };
      
         function setDebug() {
-			debugDraw = new b2DebugDraw();
+		debugDraw = new b2DebugDraw();
 		debugDraw.SetSprite(document.getElementById("canvas").getContext("2d"));
-			debugDraw.SetDrawScale(scale);
-			debugDraw.SetFillAlpha(0.5);
-			debugDraw.SetLineThickness(1.0);
-			debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);		
-			world.SetDebugDraw(debugDraw);
-			bDrawDebug=true;
-		};
+		debugDraw.SetDrawScale(scale);
+		debugDraw.SetFillAlpha(0.5);
+		debugDraw.SetLineThickness(1.0);
+		debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);		
+		world.SetDebugDraw(debugDraw);
+		bDrawDebug=true;
+	};
       	function setUpdate() {
        		updateInterval=window.setInterval(update, 1000 / 60);
        	};
@@ -665,88 +666,81 @@ var BOXY=function(tid) {
 	 		isMouseDown=bVal;
 	 	}
 	 
-         function handleMouseMove(e) {         	
-            e.preventDefault(); 
-            if (e.targetTouches) {
-				updateTouches(e.targetTouches);
-	   		}
-	    	else {
-				mouseX = (e.clientX - canvasPosition.x) / scale;
-				mouseY = (e.clientY - canvasPosition.y) / scale;
-	   		}
-         };
+         
          
          
          function updateTouches(tt,v) {
          	v=param(v,'m');
          	var g={count:1};
          	for (var i in tt) {
-         		var t=tt[i];
-         		
+         		var t=tt[i];         		
          		if (!t.identifier) continue;
-         		
          		g["id"+t.identifier]=1;
          		if (touches["id"+t.identifier]==null) {
          			touches["id"+t.identifier]=t;
-         			touches.count++;    
-         			 			
+         			touches.count++;   
+         			
          		}
          		else {
-         			touches["id"+t.identifier]=t;  
-         			   		
+         			touches["id"+t.identifier]=t;          			   		
          		}
          	}
          	for (var id in touches) {
-         		if (g[id]==null && touches[id].identifier) {
+         		if ((typeof g[id]=='undefined' || g[id]==null) && touches[id].identifier) {
+         			
          			delete touches[id];
-         			touches.count--;
+         			if (touches.count) touches.count--;
          		}
          		
          	}         		
          	updateMouseJoints(v);
          }
          
+        function handleMouseMove(e) {         	
+        	e.preventDefault(); 
+        	if (e.targetTouches) {
+			updateTouches(e.targetTouches);
+		}
+	    	else {
+        		var targetTouches=[];
+			targetTouches[0]={identifier:'MOUSEBTN',clientX:e.clientX,clientY:e.clientY};
+			updateTouches(targetTouches);
+		}
+         }; 
          
-         document.addEventListener("touchstart", function(e) {     		
-      		updateTouches(e.targetTouches,'a');
-      		interact(e);
-      	});
-      	
+	document.addEventListener("touchstart", function(e) {     		
+		updateTouches(e.targetTouches,'a');			       
+		interact(e);
+	});
+	document.addEventListener("touchend", function(e) {
+		updateTouches(e.targetTouches,'d');
+		document.removeEventListener("touchmove", handleMouseMove, true);
+	}, true);
          
-         document.addEventListener("touchend", function(e) {
-         	updateTouches(e.targetTouches,'d');
-            document.removeEventListener("touchmove", handleMouseMove, true);
-            isMouseDown = false;
-            mouseX = undefined;
-            mouseY = undefined;
-         	
-         }, true);
-         
-         document.addEventListener("mousedown", function(e) {
-            isMouseDown = true;
-            handleMouseMove(e);
-            document.addEventListener("mousemove", handleMouseMove, true);
-         }, true);
+        document.addEventListener("mousedown", function(e) {
+        	if (!e.targetTouches) {
+        		var targetTouches=[];
+        		targetTouches[0]={identifier:'MOUSEBTN',clientX:e.clientX,clientY:e.clientY};
+        		updateTouches(targetTouches,'a');
+        		interact(e);
+        	}
+        }, true);
 
-         document.addEventListener("mouseup", function() {
-            document.removeEventListener("touchmove", handleMouseMove, true);
-            isMouseDown = false;
-            mouseX = undefined;
-            mouseY = undefined;
-         }, true);        
+        document.addEventListener("mouseup", function(e) {
+         	if (!e.targetTouches) {
+        		var targetTouches=[{}];
+         		document.removeEventListener("mousemove", handleMouseMove, true);
+         		
+			updateTouches(targetTouches,'d');
+		}
+        }, true);        
       		
-      	function interact(e) {
-      		setMouseDown(true);    						        	
-            handleMouseMove(e);            
-           	document.addEventListener("touchmove", handleMouseMove, true);
+      	function interact(e) {					        	
+		handleMouseMove(e);            
+		document.addEventListener("touchmove", handleMouseMove, true);
+		document.addEventListener("mousemove", handleMouseMove, true);
       	}
       	
-      	
-      	
-      	
-      	document.addEventListener("mousedown", function(e) {
-      		interact(e);
-      	});
       	
       	      	
       	function makeWorldBox() {
