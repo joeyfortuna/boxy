@@ -7,6 +7,7 @@ var BOXY=function(tid) {
       	var S_POLY=3;
       	var S_MULTI=4;
       	var S_CLONE=5;
+      	var S_OBOX=6;
       	
       	var touches={count:0};      	
       	var mouseJoints={count:0};
@@ -122,6 +123,9 @@ var BOXY=function(tid) {
         fixDef.restitution = 0.5;     
         fixDef.shape = new b2PolygonShape;
 		switch(shape) {
+		case S_OBOX:
+			fixDef.shape.SetAsOrientedBox(dim.l,dim.h,dim.center,dim.angle);
+			break;
 		case S_BOX:
 			fixDef.shape.SetAsBox(dim.l,dim.h);
 		break;
@@ -157,7 +161,6 @@ var BOXY=function(tid) {
       		aga.x*=scale;aga.y*=scale;
       		var agb=j.GetGroundAnchorB();
       		agb.x*=scale;agb.y*=scale;
-      		
       		return {aa:aa,ab:ab,aga:aga,agb:agb}
       	}
       	return null;
@@ -184,7 +187,6 @@ var BOXY=function(tid) {
       }
       
       function pulleyJoint(ud,bA,bB,aA,aB,gA,gB,lA,lB,mlA,mlB,bM,mS,mT) {
-      
       	var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
         pj.bodyA=bA;
         pj.bodyB=bB;
@@ -289,8 +291,9 @@ var BOXY=function(tid) {
       							objid);		
       	return body;	
       }
-      function makeDynamicBox(objid,w,h,x,y) {
-      	var body=bodyFactory({l:w,h:h},
+      
+      function makeDynamicBox(objid,l,h,x,y) {
+      	var body=bodyFactory({l:l,h:h},
       							{x:x,y:y},
       							S_BOX,
       							b2Body.b2_dynamicBody,
@@ -307,6 +310,7 @@ var BOXY=function(tid) {
       	return body;
       
       }
+      
       function makeDynamicCircle(objid,r,x,y) {
       	var body=bodyFactory({r:r},
       							{x:x,y:y},
@@ -315,6 +319,24 @@ var BOXY=function(tid) {
       							objid);
       	return body;      
       }
+      function makeDynamicCompound(objid,dim,x,y) {      	
+      		var body=bodyFactory(dim,
+      							{x:x,y:y},
+      							S_MULTI,
+      							b2Body.b2_dynamicBody,
+      							objid);
+      		return body;
+      }
+      function circle(dim) {
+      	return {dim:dim,shape:S_CIRCLE};
+      }
+      function box(dim) {
+      	return {dim:dim,shape:S_OBOX};
+      }
+      function poly(dim) {
+      	return {dim:dim,shape:S_POLY};
+      }
+      
       
       function bodyFactory(dim,pos,shape,type,id) {      	
         var bodyDef = new b2BodyDef;
@@ -350,10 +372,12 @@ var BOXY=function(tid) {
       }
       
       
-      function ImgObj(img,w,h) {
+      function ImgObj(img,w,h,x,y) {
       	this.img=img;
       	this.w=w;
       	this.h=h;
+      	this.x=x;
+      	this.y=y;
       	return this;
       
       }
@@ -376,13 +400,16 @@ var BOXY=function(tid) {
       		bodies[id]=bobj;
       }
       
-      function setBodyImage(id,src,w,h) {
+      function setBodyImage(id,src,w,h,x,y) {
+      		x=param(x,0);
+      		y=param(y,0);
+      		
       		var bobj=bodies[id];
       		if (bobj==null) return;
       		
 			var imgObj = new Image(w,h);
 			imgObj.src = src;
-			bobj.imgObj=new ImgObj(imgObj,w,h);
+			bobj.imgObj=new ImgObj(imgObj,w,h,x,y);
 			bodies[id]=bobj;
 			
       }
@@ -409,7 +436,7 @@ var BOXY=function(tid) {
       	flipY=param(flipY,false);
       	var b1=bodyById(oldid);
       	var b1def=b1.GetDefinition();
-      	//
+      	
       	bodyDef.type=b1def.type;
       	bodyDef.position.Set(pos.x, pos.y); 
       	var fl1=b1.GetFixtureList();
@@ -421,24 +448,24 @@ var BOXY=function(tid) {
         	fixDef.density=1.0;  
         	var s=f.GetShape();
         	if (s instanceof b2PolygonShape) {
-        		//
+        		
         		var v=s.GetVertices();            			
         		var newv=[];
-        		//
+        		
         		for (var i in v) {
         			var vx=v[i];
         			var v2=new b2Vec2(
 					(flipX)?(-vx.x):vx.x,
 					(flipY)?(-vx.y):vx.y
 					);
-        			//
+        			
         			newv[newv.length]=v2;        	        					
         		}
         		
         		if (flipX || flipY) newv=vecSort(newv);
            		fixDef.shape = new b2PolygonShape;
         		fixDef.shape.SetAsArray(newv,newv.length);     
-        		//
+        		
         	}
         	else fixDef.shape=f.GetShape();
         	
@@ -470,7 +497,7 @@ var BOXY=function(tid) {
         	var ud=b.GetUserData();
         	if (ud!=null && ud==bodyid) return b;
         }
-        //
+        
         return null;     
       };
       
@@ -497,17 +524,19 @@ var BOXY=function(tid) {
       		mouseJoints.count--;      	
       	}
       	
-      	function updateMouseJoints() {
-      		for (var j in mouseJoints) {
-      			var mmj=mouseJoints[j];
-      			if (touches[j]==null && mmj.mj) {
-      				world.DestroyJoint(mmj.mj);
-                  	removeMouseJoint(j);
-      			}
-      		}      		
+      	function updateMouseJoints(v) {
+      		if (v=='d') {
+	      		for (var j in mouseJoints) {
+	      			var mmj=mouseJoints[j];
+	      			if (touches[j]==null && mmj.mj) {
+	      				world.DestroyJoint(mmj.mj);
+	                  	removeMouseJoint(j);
+	      			}
+	      		}      		
+      		}
       		for (var tid in touches) {
       			var t=touches[tid];
-      			if (mouseJoints[tid]==null && t.identifier) {
+      			if (v=='a' && mouseJoints[tid]==null && t.identifier) {
       				
 	      			var mx=(t.clientX-canvasPosition.x)/scale;
 					var my=(t.clientY-canvasPosition.y)/scale;	
@@ -520,13 +549,10 @@ var BOXY=function(tid) {
 	           		world.QueryAABB(getBodyCB, ab);	     
 	           		
 	           		if (mouseJoints[tid].b!=null) {
-	           			
 	           			var bobj=bodies[mouseJoints[tid].b.GetUserData()]; 
 		   				if (bobj!=null) {
 		            		if (bobj.toucheable) {         				mouseJoints[tid]={touch:t,b:mouseJoints[tid].b,mj:null,x:mx,y:my};   
-		            		mouseJoints[tid].mj=makeMouseJoint(mouseJoints[tid]);
-		            			
-		            			
+		            		mouseJoints[tid].mj=makeMouseJoint(mouseJoints[tid]);		            			
 	         				}
 	         			}
 	         			else {
@@ -537,7 +563,7 @@ var BOXY=function(tid) {
 	         				removeMouseJoint(tid); 
 	         		}
 	           	}
-	           	else if (t.identifier) {
+	           	else if (t.identifier && mouseJoints[tid]!=null) {
 	           		var mx=(t.clientX-canvasPosition.x)/scale;
 					var my=(t.clientY-canvasPosition.y)/scale;	
 	           		mouseJoints[tid].x=mx;
@@ -563,12 +589,10 @@ var BOXY=function(tid) {
          };
       
       
-      function update() {      	
-      		//echo(mouseJoints.count,true);
+      function update() {      	      		
             if (mouseJoints.count>0) {
               	for (var i in mouseJoints) {
-              		var mmj=mouseJoints[i];    
-              		
+              		var mmj=mouseJoints[i];                  		
               		if (mmj.mj) {
                   		mmj.mj.SetTarget(new b2Vec2(mmj.x, mmj.y));
                   	}
@@ -589,14 +613,12 @@ var BOXY=function(tid) {
         		if (bodies[ud]==null) continue;
         		bodies[ud]['angle']=b.GetAngle();
         		var img=bodies[ud].imgObj;
-        		if (img==null) continue;
-        		
-        		var position=b.GetPosition();
-        		
+        		if (img==null) continue;        		
+        		var position=b.GetPosition();        		
            		context.save();					
            		context.translate(position.x*scale,position.y*scale); 
 				context.rotate(b.GetAngle());						
-				context.drawImage(img.img,-(img.w/2),-(img.h/2),img.w,img.h);
+				context.drawImage(img.img,-(img.w/2)+img.x,-(img.h/2)+img.y,img.w,img.h);
 				context.restore();				
 					
             }
@@ -655,7 +677,8 @@ var BOXY=function(tid) {
          };
          
          
-         function updateTouches(tt) {
+         function updateTouches(tt,v) {
+         	v=param(v,'m');
          	var g={count:1};
          	for (var i in tt) {
          		var t=tt[i];
@@ -680,20 +703,18 @@ var BOXY=function(tid) {
          		}
          		
          	}         		
-         	updateMouseJoints();
+         	updateMouseJoints(v);
          }
          
          
-         document.addEventListener("touchstart", function(e) {    
-      		
-      		updateTouches(e.targetTouches);
+         document.addEventListener("touchstart", function(e) {     		
+      		updateTouches(e.targetTouches,'a');
       		interact(e);
       	});
       	
          
          document.addEventListener("touchend", function(e) {
-         	
-         	updateTouches(e.targetTouches);
+         	updateTouches(e.targetTouches,'d');
             document.removeEventListener("touchmove", handleMouseMove, true);
             isMouseDown = false;
             mouseX = undefined;
@@ -761,6 +782,7 @@ var BOXY=function(tid) {
 			S_POLY : S_POLY,
 			S_MULTI : S_MULTI,
 			S_CLONE : S_CLONE,
+			
 			isMouseDown: isMouseDown,
 			handleMouseMove: handleMouseMove,
 			setMouseDown: setMouseDown,
@@ -771,6 +793,10 @@ var BOXY=function(tid) {
 			makeDynamicBox:makeDynamicBox,
 			makeStaticBall:makeStaticCircle ,
 			makeDynamicBall:makeDynamicCircle ,
+			makeDynamicCompound:makeDynamicCompound,
+			circle:circle,
+			box:box,
+			poly:poly,
 			setBodyAttr : setBodyAttr,
 			getBodyAttr: getBodyAttr,
 			getJointAttr : getJointAttr,
