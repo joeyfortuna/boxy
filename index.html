@@ -9,7 +9,7 @@
 <script>
 
 function contact(a, b) {
-	
+
 }
 
 function touchstart(tt) {
@@ -33,67 +33,67 @@ function update(ctx) {
   	ctx.lineWidth=4;
     ctx.strokeStyle='#33a99a';
    	ctx.stroke();
-   	
+
    	ctx.straightLine(ank.agb.x, ank.agb.y, ank.ab.x, ank.ab.y);
   	ctx.lineWidth=4;
     ctx.strokeStyle='#33a99a';
    	ctx.stroke();
 	/*
-	
+
 	ctx.beginPath();
     ctx.straightLine(pa.x, pa.y, pb.x, pb.y);
   	ctx.lineWidth=4;
     ctx.strokeStyle='#ffff00';
    	ctx.stroke();
-   	
+
    	ctx.beginPath();
    	ctx.dashedLine(pa.x, pa.y, pb.x, pb.y);
    	ctx.strokeStyle='#ff0000';
    	ctx.stroke();
-   	
+
    	ctx.beginPath();
    	ctx.moveTo(100, 0);
    	ctx.bezierCurveTo(pa.x, pa.y, pb.x, pb.y, 200, 0);
    	ctx.lineWidth=4;
    	ctx.strokeStyle='#0000ff';
    	ctx.stroke();
-   	
+
    	ctx.beginPath();
    	ctx.moveTo(500, 0);
    	ctx.bezierCurveTo(pb.x, pb.y, pc.x, pc.y, 500, 500);
    	ctx.lineWidth=4;
    	ctx.strokeStyle='#ff00ff';
    	ctx.stroke();
-   	
+
    	ctx.beginPath();
    	ctx.moveTo(500, 500);
    	ctx.bezierCurveTo(pc.x, pc.y, pd.x, pd.y, 0, 500);
    	ctx.lineWidth=4;
    	ctx.strokeStyle='#00ff00';
    	ctx.stroke();
-   	
+
    	ctx.beginPath();
    	ctx.moveTo(0, 500);
    	ctx.bezierCurveTo(pd.x, pd.y, pa.x, pa.y, 0, 0);
    	ctx.lineWidth=4;
    	ctx.strokeStyle='#ff0000';
    	ctx.stroke();
-   	
+
    	*/
-   	
+
 }
 
 function initPage() {
 		boxy= BOXY("canvas");
-		
+
       	//boxy.setDebug();
       	boxy.setUpdate();
       	//boxy.toggleGravity();
-      	
+
       	boxy.setContactCallback(contact);
-      	boxy.setUpdateCallback(update);  
-      	
-      	var ball1=boxy.makeDynamicBall('ball1', .7, 2, 8);
+      	boxy.setUpdateCallback(update);
+
+      	var ball1=boxy.makeDynamicBall('ball1', .7, 4, 8.5);
       	var ball2=boxy.clone('ball1','ball2', 15, 8);
      	var ball3=boxy.clone('ball1','ball3', 18, 10);
       	var ball4=boxy.clone('ball1','ball4', 2, 10);
@@ -101,29 +101,31 @@ function initPage() {
    		//var roid=boxy.makeDynamicBall('roid', 2.2, 2, 8);
       	//boxy.setBodyImage('roid', 'images/roid.jpg', 150,150);
     //boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
-   
-    
+
+
         boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);
       	boxy.setBodyImage('ball2', 'images/dot.png', 50, 50);
-      	boxy.setBodyImage('ball3', 'images/dot.png', 50, 50);     
+      	boxy.setBodyImage('ball3', 'images/dot.png', 50, 50);
       	boxy.setBodyImage('ball4', 'images/dot.png', 50, 50);
       	//dim,pos,shape,type,id
-      	var dim=[boxy.box(1,.2,0,-.5),boxy.box(.2,1,-1.1,-1.5),boxy.box(.2,1,1.1,-1.5)];
-      	
-      	boxy.makeDynamicCompound('bucket',dim,15,3);
+      	var dim=[boxy.box(1,.2,0,-.5),boxy.box(.2,1.3,-1.1,-1.7),boxy.box(.2,1.3,1.1,-1.7)];
+
+      	var bucket=boxy.makeDynamicCompound('bucket',dim,10,3);
+      	var bucket2=boxy.clone('bucket','bucket2', 18, 8);
       	boxy.setBodyImage('bucket', 'images/bucket.png', 85, 85, 0,-48);
-      	boxy.makePulleyJoint({jointid:'pull1', aid:'ball1', bid:'bucket', maxLengthA:15, maxLengthB:15, lengthA:10, lengthB:10, anchorB:{x:0,y:-3}});
-      
+      	boxy.setBodyImage('bucket2', 'images/bucket.png', 85, 85, 0,-48);
+      	boxy.makePulleyJoint({jointid:'pull1', aid:'bucket2', bid:'bucket', maxLengthA:15, maxLengthB:15, lengthA:10, lengthB:10, anchorB:{x:0,y:-3},anchorA:{x:0,y:-3}});
+
 }
 </script>
 
 
 </head>
 <body onload="initPage();">
-<center> 
+<center>
 
 
-<canvas id="canvas" width="900" height="400" style="border:1px solid #a5a9a9"></canvas>
+<canvas id="canvas" width="900" height="500" style="border:1px solid #a5a9a9"></canvas>
 
 <div id="boxyDebug"></div>
 </body>
