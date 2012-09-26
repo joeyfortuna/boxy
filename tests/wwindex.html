@@ -1,0 +1,255 @@
+<html>
+<head>
+<script src="js/jquery.min.js" type="text/javascript"></script>
+<!--<script type="text/javascript" src="js/box2dweb.min.js"></script>
+<script type="text/javascript" src="js/wwboxy.js"></script>-->
+<script type="text/javascript" src="js/boxy_helpers.js"></script>
+
+<script type="text/javascript">
+
+var boxy;
+var bimgs={};
+var scale=30;
+var mouseDown=-1;
+
+function contact(a, b) {
+
+}
+
+function param(p,d) {
+      	if (typeof p=='undefined') return d;
+      	else return p;
+}
+function echo(str,bCls) {
+
+       		bCls=param(bCls,false);
+       		var dv=document.getElementById("boxyDebug");
+
+       		if (bCls) dv.innerHTML='';
+            dv.innerHTML=dv.innerHTML+str+"<br>";
+       };
+
+
+function update(bodies,joints) {
+	var canvaselem = document.getElementById("canvas");
+	var ctx = canvaselem.getContext("2d");
+	var canvaswidth = canvaselem.width-0;
+	var canvasheight = canvaselem.height-0;
+
+
+	ctx.clearRect(0,0,canvaswidth,canvasheight);
+	for (var ud in bodies) {
+		var body=bodies[ud];
+		var angle=body.angle;
+		var img=bimgs[ud];
+		if (img==null) continue;
+		var position=body.position;
+		ctx.save();
+		ctx.translate(position.x*scale,position.y*scale);
+		ctx.rotate(angle);
+		ctx.drawImage(img.img,-(img.w/2)+img.x,-(img.h/2)+img.y,img.w,img.h);
+		ctx.restore();
+	}
+
+
+
+
+	var ank=joints['pull1'];
+	ctx.beginPath();
+	ctx.straightLine(ank.aga.x, ank.aga.y, ank.aa.x, ank.aa.y);
+  	ctx.lineWidth=4;
+    ctx.strokeStyle='#33a99a';
+   	ctx.stroke();
+
+   	ctx.straightLine(ank.agb.x, ank.agb.y, ank.ab.x, ank.ab.y);
+  	ctx.lineWidth=4;
+    ctx.strokeStyle='#33a99a';
+   	ctx.stroke();
+
+
+
+	var pa={x:bodies['ball1'].position.x*scale,y:bodies['ball1'].position.y*scale};
+	var pb={x:bodies['ball2'].position.x*scale,y:bodies['ball2'].position.y*scale};
+	ctx.beginPath();
+    ctx.straightLine(pa.x, pa.y, pb.x, pb.y);
+  	ctx.lineWidth=4;
+    ctx.strokeStyle='#ffff00';
+   	ctx.stroke();
+/*
+   	ctx.beginPath();
+   	ctx.dashedLine(pa.x, pa.y, pb.x, pb.y);
+   	ctx.strokeStyle='#ff0000';
+   	ctx.stroke();
+
+   	ctx.beginPath();
+   	ctx.moveTo(100, 0);
+   	ctx.bezierCurveTo(pa.x, pa.y, pb.x, pb.y, 200, 0);
+   	ctx.lineWidth=4;
+   	ctx.strokeStyle='#0000ff';
+   	ctx.stroke();
+
+   	ctx.beginPath();
+   	ctx.moveTo(500, 0);
+   	ctx.bezierCurveTo(pb.x, pb.y, pc.x, pc.y, 500, 500);
+   	ctx.lineWidth=4;
+   	ctx.strokeStyle='#ff00ff';
+   	ctx.stroke();
+
+   	ctx.beginPath();
+   	ctx.moveTo(500, 500);
+   	ctx.bezierCurveTo(pc.x, pc.y, pd.x, pd.y, 0, 500);
+   	ctx.lineWidth=4;
+   	ctx.strokeStyle='#00ff00';
+   	ctx.stroke();
+
+   	ctx.beginPath();
+   	ctx.moveTo(0, 500);
+   	ctx.bezierCurveTo(pd.x, pd.y, pa.x, pa.y, 0, 0);
+   	ctx.lineWidth=4;
+   	ctx.strokeStyle='#ff0000';
+   	ctx.stroke();
+
+   	*/
+
+}
+
+function setBodyImage(bid,src,w,h,x,y) {
+	x=param(x,0);
+	y=param(y,0);
+	var img=new Image(w,h);
+	img.src=src;
+	var bimg={img:img,w:w,h:h,x:x,y:y};
+	bimgs[bid]=bimg;
+}
+
+      	 //http://js-tut.aardon.de/js-tut/tutorial/position.html
+        function getElementPosition(element) {
+            var elem=element, tagname="", x=0, y=0;
+
+            while((typeof(elem) == "object") && (typeof(elem.tagName) != "undefined")) {
+               y += elem.offsetTop;
+               x += elem.offsetLeft;
+               tagname = elem.tagName.toUpperCase();
+
+               if(tagname == "BODY")
+                  elem=0;
+
+               if(typeof(elem) == "object") {
+                  if(typeof(elem.offsetParent) == "object")
+                     elem = elem.offsetParent;
+               }
+            }
+
+            return {x: x, y: y};
+         };
+
+
+
+function handleBoxyMsg(e) {
+	var msg=e.data;
+	if (msg.v.indexOf("touch")>-1) echo(msg.v,true);
+	if (msg.v=='update') {
+		update(msg.bodies,msg.joints);
+	}
+}
+
+var k=0;
+
+function setUpListeners() {
+
+	boxy.addEventListener('message', handleBoxyMsg, false);
+
+	document.addEventListener("touchstart", function(e) {
+			boxy.postMessage({v:"touchstart", targetTouches:e.targetTouches});
+	}, true);
+	document.addEventListener("touchend", function(e) {e.preventDefault();
+		boxy.postMessage({v:"touchend", targetTouches:e.targetTouches});
+    }, true);
+    document.addEventListener("touchmove", function(e){e.preventDefault();
+        boxy.postMessage({v:"touchmove", targetTouches:e.targetTouches});
+    }, true);
+
+   	document.addEventListener("mousedown", function(e) {
+        	if (!e.targetTouches) {
+        		var mbutt=null;
+        	 	if (e.button>0) mbutt=e.button;
+        	 	else mbutt=e.which;
+        	 	mouseDown=mbutt;
+        		var targetTouches=[];
+        		targetTouches[0]={identifier:'MOUSEBTN', clientX:e.clientX,clientY:e.clientY};
+        		boxy.postMessage({v:'mousedown',targetTouches:targetTouches});
+        	}
+        }, true);
+    document.addEventListener("mouseup", function(e) {
+        	if (!e.targetTouches) {
+        	 	mouseDown=-1;
+        		var targetTouches=[];
+        		echo("----",true);
+         		boxy.postMessage({v:'mouseup',targetTouches:targetTouches});
+			}
+        }, true);
+	document.addEventListener("mousemove", function(e){
+        	if (!e.targetTouches && mouseDown==1) {
+        	  	e.preventDefault();
+				var targetTouches=[];
+				targetTouches[0]={identifier:'MOUSEBTN', clientX:e.clientX,clientY:e.clientY};
+				boxy.postMessage({v:'mousedown',targetTouches:targetTouches});
+        	}
+		}, true);
+
+}
+
+
+
+function initPage() {
+		//bb.toggle();
+		boxy=new Worker("js/wwboxy.js");
+      	var cp = getElementPosition(document.getElementById("canvas"));
+
+		setUpListeners();
+
+
+		boxy.postMessage({v:'setCanvasDimensions', w:800, h:600, x:cp.x, y:cp.y});
+
+      	//boxy.setDebug();
+     	boxy.postMessage({v:'setUpdate'});
+
+      	//boxy.toggleGravity();
+
+      //	boxy.setContactCallback(contact);
+      //	boxy.setUpdateCallback(update);
+      	var ball1=boxy.postMessage({v:'makeDynamicBall',bodyid:'ball1', r:.7, x:2, y:8});
+      	var ball2=boxy.postMessage({v:'clone',oldid:'ball1', bodyid:'ball2', x:15, y:8});
+     	var ball3=boxy.postMessage({v:'clone',oldid:'ball1', bodyid:'ball3', x:18, y:10});
+      	var ball4=boxy.postMessage({v:'clone',oldid:'ball1', bodyid:'ball4', x:2, y:10});
+    	//var post=boxy.makeStaticBox('post',1.5,2,9,8);
+   		//var roid=boxy.makeDynamicBall('roid', 2.2, 2, 8);
+      	//setBodyImage('roid', 'images/roid.jpg', 150,150);
+    //boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
+
+       	setBodyImage('ball1', 'images/dot.png', 50, 50);
+      	setBodyImage('ball2', 'images/dot.png', 50, 50);
+      	setBodyImage('ball3', 'images/dot.png', 50, 50);
+      	setBodyImage('ball4', 'images/dot.png', 50, 50);
+
+      	var dim=[{shape:'box(1,.2,0,-.5)'},{shape:'box(.2,1,-1.1,-1.5)'},{shape:'box(.2,1,1.1,-1.5)'}];
+
+      	boxy.postMessage({v:'makeDynamicCompound',bodyid:'bucket', dim:dim, x:15, y:3});
+      	setBodyImage('bucket', 'images/bucket.png', 85, 85, 0,-48);
+      	boxy.postMessage({v:'makePulleyJoint',params:{jointid:'pull1', aid:'ball1', bid:'bucket',maxLengthA:15, maxLengthB:15, lengthA:10,lengthB:10,anchorB:{x:0,y:-3}}});
+}
+
+</script>
+
+
+</head>
+<body onload="initPage();">
+<center>
+
+
+<canvas id="canvas" width="800" height="600"
+			style="background-color:#ffffff;border:2px solid #898989;"></canvas>
+
+<div id="boxyDebug"></div>
+</body>
+</html>
