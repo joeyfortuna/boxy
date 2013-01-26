@@ -13,22 +13,22 @@
       		</td>
       		<td valign="top">
       			<button id= "btnStopStart" ontouchstart="toggleMotor();">start /<br>stop</button><br> <br>
-      			
+
       		    <button id= "btnReverse" ontouchstart="reverseMotor();">reverse</button><br> <br>
       			<button id= "btnFloat" ontouchstart="toggleGravity();">float</button><br> <br>
-      			<button id= "btnJump" ontouchstart="jump();">jump</button><br>   			
+      			<button id= "btnJump" ontouchstart="jump();">jump</button><br>
       		</td>
       	</tr>
-      	
+
       </table>
       <div id="ddiv" style="border:1px solid blue;height:600px;overflow:auto;font-size:11px;font-family:arial;"></div>
-      
+
    </body>
-   <script type="text/javascript" src="js/box2dweb.min.js"></script>
+   <script type="text/javascript" src="../js/box2dweb.min.js"></script>
    <script type="text/javascript">
-   
-   	  
-	
+
+
+
 
       function init() {
          var   b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -53,7 +53,7 @@
        function echo(str) {
        		var dv=document.getElementById("ddiv");
             dv.innerHTML=dv.innerHTML+str+"<br>";
-       
+
        }
        contactListener.BeginContact = function(contact, manifold) {
                 var fixA=contact.GetFixtureA();
@@ -66,8 +66,8 @@
             //     bB.linearVelocity=new b2Vec(0,0);}
             //  else  if (bA.GetUserData()==143) { bA.SetAwake(false);
              //    bA.linearVelocity=new b2Vec(0,0);}
-                
-               
+
+
        };
     	 world.SetContactListener(contactListener);
 
@@ -82,20 +82,20 @@
          fixDef.shape = new b2PolygonShape;
          fixDef.shape.SetAsBox(19.5, .5);
          bodyDef.position.Set(10.5, 20);
- 
+
          var bodyBottom=world.CreateBody(bodyDef);
          bodyBottom.CreateFixture(fixDef);
          bodyDef.position.Set(10.5, -.2);
- 
+
          var bodyTop=world.CreateBody(bodyDef)
          bodyTop.CreateFixture(fixDef);
          fixDef.shape.SetAsBox(.5, 20);
          bodyDef.position.Set(-.2, 13);
-  
+
          var bodyLeft=world.CreateBody(bodyDef);
          bodyLeft.CreateFixture(fixDef);
          bodyDef.position.Set(30.2, 20);
-  
+
          var bodyRight=world.CreateBody(bodyDef)
          bodyRight.CreateFixture(fixDef);
 
@@ -122,7 +122,7 @@ this.__super.b2JointDef.call(this);
 /*
 
 // robot arm
-		
+
           bodyDef.type = b2Body.b2_staticBody;
               fixDef.shape = new b2PolygonShape;
                fixDef.shape.SetAsBox(
@@ -224,7 +224,7 @@ var rj2 =  new Box2D.Dynamics.Joints.b2RevoluteJointDef();
         rj2.bodyB=lever;
         rj2.localAnchorA=new b2Vec2(0,0);
          rj2.localAnchorB=new b2Vec2(0,.15);
-       
+
        rj2.referenceAngle = 0.0;
       rj2.lowerAngle = -1.0;
       rj2.upperAngle = 1.0;
@@ -251,7 +251,7 @@ var rj2 =  new Box2D.Dynamics.Joints.b2RevoluteJointDef();
         bodyDef.position.y = 8;
         var pull1=world.CreateBody(bodyDef)
         pull1.CreateFixture(fixDef);
-        
+
         fixDef.shape.SetAsBox(
                      .5
                   ,  .7
@@ -266,15 +266,15 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
         pj.bodyB=pull2;
         pj.localAnchorA=new b2Vec2(0,-.5);
          pj.localAnchorB=new b2Vec2(0,-.5);
-      
+
         pj.groundAnchorA=new b2Vec2(8,1);
          pj.groundAnchorB=new b2Vec2(8,1);
            pj.maxLengthA=10;
          pj.maxLengthB=10;
        pj.lengthA=3;
        pj.lengthB=10;
-      
-     
+
+
       pj.enableMotor = false;
       world.CreateJoint(pj);
 
@@ -288,8 +288,8 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
     bodyDef.position.y = Math.random() * 10;
     var body=world.CreateBody(bodyDef)
     body.CreateFixture(fixDef);
-    
-    
+
+
     fixDef.shape = new b2PolygonShape;
                fixDef.shape.SetAsBox(
                      0.5//half width
@@ -312,8 +312,8 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
     var car=world.CreateBody(bodyDef)
     car.CreateFixture(fixDef);
     car.SetUserData(143);
-    
-    fixDef.friction = 10;    
+
+    fixDef.friction = 10;
 	fixDef.shape = new b2CircleShape(
                   .5 //radius
                );
@@ -321,7 +321,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
     bodyDef.position.y = 17.5;
     var w1=world.CreateBody(bodyDef)
     w1.CreateFixture(fixDef);
-    
+
     fixDef.shape = new b2CircleShape(
                   .5 //radius
                );
@@ -329,7 +329,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
     bodyDef.position.y = 17.5;
     var w2=world.CreateBody(bodyDef)
     w2.CreateFixture(fixDef);
-       
+
       var rj =  new Box2D.Dynamics.Joints.b2RevoluteJointDef();
       rj.bodyA=w1;
       rj.bodyB=car;
@@ -340,7 +340,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
       rj.motorSpeed = -500;
       rj.enableMotor=true;
       world.CreateJoint(rj);
-      
+
       var rj1 =  new Box2D.Dynamics.Joints.b2RevoluteJointDef();
       rj1.bodyA=w2;
       rj1.bodyB=car;
@@ -351,7 +351,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
       rj1.motorSpeed = -500;
       rj1.enableMotor=true;
       world.CreateJoint(rj1);
-    
+
 /*
          for(var i = 0; i < 2;++i) {
             if(Math.random() > 1) {
@@ -370,7 +370,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
             var body=world.CreateBody(bodyDef)
             body.CreateFixture(fixDef);
             body.SetUserData(143);
-     */       
+     */
 
    /*         if (oldBody!=null) {
                   var dj =  new Box2D.Dynamics.Joints.b2DistanceJointDef();
@@ -402,12 +402,12 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
 
          var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
          var canvasPosition = getElementPosition(document.getElementById("canvas"));
-         
+
 		 function jump() {
 		 	var bl=world.GetBodyList();
 		 	//for (k in bl) echo(k)
 		 	echo(1)
-            for (var b=bl;b;b=b.GetNext()) {        		
+            for (var b=bl;b;b=b.GetNext()) {
              //	echo("2");
              	var ud=b.GetUserData();
              	if (ud!=null && ud==143) {
@@ -415,7 +415,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
              	}
              }
 		 }
-		 
+
 		 function toggleGravity() {
 		 	var g=world.GetGravity();
 		 	for (var k in g) echo(k);
@@ -427,56 +427,56 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
 		 function toggleMotor() {
 		 	var bl=world.GetBodyList();
 		 	//for (k in bl) echo(k)
-            for (var b=bl;b;b=b.GetNext()) {        		
+            for (var b=bl;b;b=b.GetNext()) {
              //	echo("2");
              	var ud=b.GetUserData();
-             	if (ud!=null && ud==143) {                	
+             	if (ud!=null && ud==143) {
              		var lv=b.GetLinearVelocity();
-             	   	b.SetLinearVelocity(new b2Vec2(-lv.x,lv.y));     		
+             	   	b.SetLinearVelocity(new b2Vec2(-lv.x,lv.y));
              		jl=b.GetJointList();
-             		jb=b;                  		
-             		var bDid=false;             		
+             		jb=b;
+             		var bDid=false;
              		for (var i=jl;i;i=i.next) {
-             			var j=i.joint; 
+             			var j=i.joint;
              			if (j.GetMotorSpeed()==0)
              				j.SetMotorSpeed(vOldSpeed);
              			else {
-             				vOldSpeed=j.GetMotorSpeed();           						
-             				j.SetMotorSpeed(0);     
-             			}   		
+             				vOldSpeed=j.GetMotorSpeed();
+             				j.SetMotorSpeed(0);
+             			}
              		}
              		break;
             	}
             //	echo("end")
             }
 		 }
-		 
+
 		 function reverseMotor() {
 		 //	echo("1");
 		 	var bl=world.GetBodyList();
 		 	//for (k in bl) echo(k)
-            for (var b=bl;b;b=b.GetNext()) {        		
+            for (var b=bl;b;b=b.GetNext()) {
              //	echo("2");
              	var ud=b.GetUserData();
-             	if (ud!=null && ud==143) {                	
+             	if (ud!=null && ud==143) {
              		var lv=b.GetLinearVelocity();
-             	   	b.SetLinearVelocity(new b2Vec2(-lv.x,lv.y));     		
+             	   	b.SetLinearVelocity(new b2Vec2(-lv.x,lv.y));
              		jl=b.GetJointList();
-             		jb=b;                  		
-             		var bDid=false;             		
+             		jb=b;
+             		var bDid=false;
              		for (var i=jl;i;i=i.next) {
-             			var j=i.joint;    
-             			if (j.GetMotorSpeed()>0) { 						
-             				j.SetMotorSpeed(~j.GetMotorSpeed()); 
-             			}   
-             			else 
-             				j.SetMotorSpeed(-vOldSpeed);      		
+             			var j=i.joint;
+             			if (j.GetMotorSpeed()>0) {
+             				j.SetMotorSpeed(~j.GetMotorSpeed());
+             			}
+             			else
+             				j.SetMotorSpeed(-vOldSpeed);
              		}
              		break;
             	}
             //	echo("end")
             }
-            
+
    	 	 }
 
          document.addEventListener("touchstart", function(e) {
@@ -524,17 +524,17 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
 	         	mouseY = (e.clientY - canvasPosition.y) / 30;
 	        }
          };
-         
+
          function makePoly(vecs,bodyDef,fixDef,world) {
    			var polyvecs=[];
-   
+
    			for(var i=0;i<vecs.length;i++) {
    				var x=vecs[i][0];
    				var y=vecs[i][1];
    				var c=new b2Vec2(x,y);
    				polyvecs[polyvecs.length]=c;
    			}
-   			
+
 			bodyDef.type = b2Body.b2_dynamicBody;
 			fixDef.shape=new b2PolygonShape;
 			fixDef.shape.SetAsArray(polyvecs,polyvecs.length);
@@ -543,7 +543,7 @@ var pj =  new Box2D.Dynamics.Joints.b2PulleyJointDef();
 			var poly=world.CreateBody(bodyDef);
 			poly.CreateFixture(fixDef);
 			return poly;
-		}	
+		}
 
          function getBodyAtMouse() {
             mousePVec = new b2Vec2(mouseX, mouseY);
