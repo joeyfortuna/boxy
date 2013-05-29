@@ -39,6 +39,8 @@ var BOXY=function(tid,stepTime) {
 	var canvasid=tid;
 	var latestMouseTouchId=0;
 	
+	var orientation={a:0,b:0,g:0};
+	
 	var scale=30;
       	
       	 //http://js-tut.aardon.de/js-tut/tutorial/position.html
@@ -70,6 +72,7 @@ var BOXY=function(tid,stepTime) {
       
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
+	, b2Math= Box2D.Common.Math.b2Math
 	,	b2BodyDef = Box2D.Dynamics.b2BodyDef
 	,	b2Body = Box2D.Dynamics.b2Body
 	,	b2FixtureDef = Box2D.Dynamics.b2FixtureDef
@@ -256,6 +259,9 @@ var BOXY=function(tid,stepTime) {
       	else if (key=='motorSpeed') {
       		j.SetMotorSpeed(val);
       	}
+      	else if (key=='maxMotorForce') {
+      		j.SetMaxMotorForce(val);
+      	}
       	else if (key=='torque') {
       		j.SetMaxMotorTorque(val);
       		//boxy.echo("joint! "+ jid,true);
@@ -288,11 +294,50 @@ var BOXY=function(tid,stepTime) {
       	else if (attr=='motorSpeed') {
       		return j.GetMotorSpeed();
       	}
+      	else if (attr=='jointSpeed') {
+      		return j.GetJointSpeed();
+      	}
       	else if (attr=='angle') {
       		return j.GetJointAngle();
       	}
+      	else if (attr=='translation') {
+      		return tr=j.GetJointTranslation();
+      		
+      	}
       	return null;
       }
+      var lastVec={x:0,y:0}
+      function makeSpring(bA,bB,localA,localB,k,friction,desiredDist,fixedPoint) {
+      	var pA=bA.GetWorldPoint(localA);
+      	var pB=bB.GetWorldPoint(localB);
+      	
+      	var diff=b2Math.SubtractVV(pB,pA);     
+	
+	var vA = b2Math.SubtractVV(bA.m_linearVelocity,b2Math.CrossVF(bA.GetWorldVector(localA), bA.m_angularVelocity));
+        var vB = b2Math.SubtractVV(bB.m_linearVelocity,b2Math.CrossVF(bB.GetWorldVector(localB), bB.m_angularVelocity));
+        var vDiff= b2Math.SubtractVV(vB,vA);
+        var dx=diff.Normalize();
+	var vrel = 0+ vDiff.y*diff.y;
+	var forceMag = -k*(dx-desiredDist) - friction*vrel;
+	
+	diff=b2Math.MulFV(forceMag,diff); // diff *= forceMag
+	diff.x=2*(pA.x-fixedPoint.x)	;
+	diff.y=Math.round(diff.y*1000)/1000;
+	
+	if (Math.abs(diff.y-lastVec.y)<.001) {
+		lastVec.y=diff.y;
+		//bA.SetLinearDamping(1000.0);
+		return;
+	}
+	
+	bB.ApplyForce(diff, bA.GetWorldPoint(localA));
+	bA.ApplyForce(b2Math.MulFV(-1.0,diff), bB.GetWorldPoint(localB));
+	lastVec.y=diff.y;
+	
+	
+	/**/
+      }
+      
       function makePrismaticJoint(args) {
       
       	var bA=bodyById(args.aid);
@@ -312,11 +357,12 @@ var BOXY=function(tid,stepTime) {
         pj.localAnchorA=aA;
         pj.localAnchorB=aB;   
         pj.localAxisA=wa;
-        pj.enableLimit=true;
+        pj.enableLimit=param(args.enableLimit,true);
         pj.lowerTranslation=param(args.lowerTranslation,0);
         pj.upperTranslation=param(args.upperTranslation,0);
         pj.enableMotor=param(args.enableMotor,false);
         pj.motorSpeed=param(args.motorSpeed,0);
+        pj.maxMotorForce=param(args.maxMotorForce,0);
         var ud=param(args.jointid,'jntPris_'+args.aid+'_'+args.bid);
         pj.worldCenterA=wc;	
         var joint= world.CreateJoint(pj);      
@@ -634,6 +680,17 @@ var BOXY=function(tid,stepTime) {
       			var b=bodyById(id);
       			b.SetAngle(val);
       		}
+      		else if (key=='contactFilter'){
+      			var b1=bodyById(id);
+      			var b1def=b1.GetDefinition();      
+		      	var fl1=b1.GetFixtureList(); 
+		      	for (var f = fl1;f; f = f.GetNext()) {
+		      		var filter=f.GetFilterData();
+		      		filter.categoryBits=val[0];
+		      		filter.maskBits=val[1];
+		      		f.SetFilterData(filter);
+		      	}
+      		}
       		else if (key=='collide'){
       			var b1=bodyById(id);
       			var b1def=b1.GetDefinition();      
@@ -818,8 +875,7 @@ var BOXY=function(tid,stepTime) {
 	      		}      		
       		}
       		for (var tid in touches) {
-      			var t=touches[tid];
-      			    			
+      			var t=touches[tid];      			    			
       			if (v=='a' && mouseJoints[tid]==null && t.identifier) {
 	      			var mx=(t.clientX-canvasPosition.x)/scale;
 				var my=(t.clientY-canvasPosition.y)/scale;	
@@ -828,13 +884,13 @@ var BOXY=function(tid,stepTime) {
 				ab.lowerBound.Set(mx - 0.001, my - 0.001);
 				ab.upperBound.Set(mx + 0.001, my + 0.001);
 				mouseJoints[tid]={touch:t,b:null,mj:null,x:mx,y:my,mpvec:mpvec};
-				mouseJoints.count++;
+				
+				mouseJoints.count++;		
 				world.QueryAABB(getBodyCB, ab);	     
 				if (mouseJoints[tid].b!=null) {
 					var bobj=bodies[mouseJoints[tid].b.GetUserData()]; 
-					
 					if (bobj!=null) {
-						if (bobj.toucheable) {         				
+						if (bobj.toucheable) {         			
 							mouseJoints[tid].mj = makeMouseJoint(mouseJoints[tid]);
 							bodyTouchCallback(bobj);	
 							bobj.touched=true;	
@@ -842,6 +898,7 @@ var BOXY=function(tid,stepTime) {
 						}
 						else {
 							removeMouseJoint(tid);
+							bodyTouchCallback(bobj);
 						}   
 					}
 					else {
@@ -866,15 +923,15 @@ var BOXY=function(tid,stepTime) {
          		var mj=mouseJoints[k];
          		if (!mj.mpvec) continue;
          		var mousePVec=mj.mpvec;     		
-         		
+         		if (mouseJoints[k].b!=null) continue;
 	            if(fixture.GetBody().GetType() != b2Body.b2_staticBody) {               
-	               if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
-	                  mouseJoints[k].b = fixture.GetBody();
-	                  
+	   				if(fixture.GetShape().TestPoint(fixture.GetBody().GetTransform(), mousePVec)) {
+	                  mouseJoints[k].b = fixture.GetBody();	                  
 	                  return false;
 	               }
 	            }
 	        }
+	        
             return true;
          };
       
@@ -959,7 +1016,9 @@ var BOXY=function(tid,stepTime) {
 			context.restore();				
 
 		}
-		if (postDrawCallback!=null) postDrawCallback(context);
+		if (postDrawCallback!=null) {
+			postDrawCallback(context);
+		}
 
             
       };
@@ -1044,8 +1103,15 @@ var BOXY=function(tid,stepTime) {
  			var az=e.accelerationIncludingGravity.z;
  			//g.x=ay;
  			//g.y=ax;
+			echo(orientation.a,true);
  			world.SetGravity({x:ay,y:ax});
 		}
+		
+	function orient(e) {
+		orientation.a=e.alpha;
+		orientation.b=e.beta;
+		orientation.g=e.gamma;
+	}
 		
 		function enableTilt() {			
 			var bl=world.GetBodyList();
@@ -1055,6 +1121,9 @@ var BOXY=function(tid,stepTime) {
 			
 			window.ondevicemotion=function(e) {
 				tilt(e)
+			}
+			window.ondeviceorientation=function(e) {
+				orient(e)
 			}
 		};
 		
@@ -1086,7 +1155,6 @@ var BOXY=function(tid,stepTime) {
          function updateTouches(tt,v) {
          	v=param(v,'m');
          	var g={count:1};
-         	
          	for (var i in tt) {
          		var t=tt[i];         		
          		if (!t.identifier) continue;
@@ -1122,7 +1190,7 @@ var BOXY=function(tid,stepTime) {
          
     	document.addEventListener("touchmove", function(e) {    
       		e.preventDefault();	  	
-			updateTouches(e.targetTouches,'d');
+			updateTouches(e.targetTouches,'m');
 		if (eventDelegates.touchMove) eventDelegates.touchMove(e);
 	}, true);
       	
@@ -1187,6 +1255,7 @@ var BOXY=function(tid,stepTime) {
 			cloneBody: cloneBody,
 			clone : clone,
 			removeBody : removeBody,
+			bodyById : bodyById,
 			makeRevoluteJoint: makeRevoluteJoint,
 			makePulleyJoint : makePulleyJoint,
 			makeDistanceJoint: makeDistanceJoint,
@@ -1205,6 +1274,7 @@ var BOXY=function(tid,stepTime) {
 			makeStaticPoly:makeStaticPoly,
 			makeDynamicCompound:makeDynamicCompound,
 			makeStaticCompound:makeStaticCompound,
+			makeSpring:makeSpring,
 			circle:circle,
 			box:box,
 			poly:poly,
