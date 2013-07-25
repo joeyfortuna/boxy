@@ -645,6 +645,11 @@ var BOXY=function(tid,stepTime) {
       			else if (val=='dynamic')
       				b.SetType(b2Body.b2_dynamicBody);      			
       		}
+      		else if (key=='toucheable') {
+      			bobj.toucheable=val;
+      			bodies[id]=bobj;
+      			return;
+      		}
       		else if (key=='enableSleep') {
       			var b=bodyById(id);
       			b.SetSleepingAllowed(val);
@@ -1103,7 +1108,6 @@ var BOXY=function(tid,stepTime) {
  			var az=e.accelerationIncludingGravity.z;
  			//g.x=ay;
  			//g.y=ax;
-			echo(orientation.a,true);
  			world.SetGravity({x:ay,y:ax});
 		}
 		
