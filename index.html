@@ -1,8 +1,8 @@
 <html>
 <head>
-<title>Main Menu - Radio Jane</title>
+<title>Boxy - Joey Fortuna</title>
 <script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/box2dweb.min.js"></script>
+<script type="text/javascript" src="js/box2dweb.js"></script>
 <script type="text/javascript" src="js/boxy.js"></script>
 <script type="text/javascript" src="js/boxy_helpers.js"></script>
 
@@ -21,7 +21,7 @@ function touchend(tt) {
 }
 
 
-function update(ctx) {
+function preDrawCallback(ctx) {
 	var pa=boxy.getBodyAttr('ball1', 'pos');
 	var pb=boxy.getBodyAttr('ball2', 'pos');
 	//var pc=boxy.getBodyAttr('ball3', 'pos');
@@ -91,7 +91,6 @@ function initPage() {
       	//boxy.toggleGravity();
 
       	boxy.setContactCallback(contact);
-      	boxy.setUpdateCallback(update);
 
       	var ball1=boxy.makeDynamicBall('ball1', .7, 4, 8.5);
       	var ball2=boxy.clone('ball1','ball2', 15, 8);
@@ -100,7 +99,7 @@ function initPage() {
     	//var post=boxy.makeStaticBox('post',1.5,2,9,8);
    		//var roid=boxy.makeDynamicBall('roid', 2.2, 2, 8);
       	//boxy.setBodyImage('roid', 'images/roid.jpg', 150,150);
-    	//boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
+    //boxy.makeRevoluteJoint({aid:'post',bid:'roid',centerA:true,centerB:true});
 
 
         boxy.setBodyImage('ball1', 'images/dot.png', 50, 50);

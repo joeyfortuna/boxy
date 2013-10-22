@@ -428,6 +428,27 @@ var BOXY=function(tid,stepTime) {
       		joint.SetUserData(ud);
       		return joint;      		
       }
+      function makeWeldJoint(args) {
+      		var bA=bodyById(args.aid);
+      		var bB=bodyById(args.bid);
+      		var ud=param(args.jointid,'jntDis_'+args.aid+'_'+args.bid);
+      		var lA=param(args.anchorA,bA.GetLocalCenter());
+      		var lB=param(args.anchorB,bB.GetLocalCenter());
+      		var mass=param(args.mass,0);
+      		var dj =  new Box2D.Dynamics.Joints.b2WeldJointDef();
+      		dj.bodyA=bA;
+      		dj.bodyB=bB;
+      		dj.mass=mass;
+      		
+      		dj.localAnchorA=lA;
+      		dj.localAnchorB=lB;
+      		dj.collideConnected=false;
+      		//dj.dampingRatio=1;
+      		//dj.frequencyHz=0;
+       		var joint=world.CreateJoint(dj);
+      		joint.SetUserData(ud);
+      		return joint;      		
+      }
       
       function makeRevoluteJoint(args) {
       		var bA=bodyById(args.aid);
@@ -593,7 +614,7 @@ var BOXY=function(tid,stepTime) {
       function BodyObj(bodyid) {
       	this.id=bodyid;
       	this.imgObj=null;
-      	this.toucheable=true;
+      	this.touchable=true;
       	this.touched=false;
       	this.fixedRotation=false;
       	this.angle=0;
@@ -644,11 +665,6 @@ var BOXY=function(tid,stepTime) {
       				b.SetType(b2Body.b2_staticBody);
       			else if (val=='dynamic')
       				b.SetType(b2Body.b2_dynamicBody);      			
-      		}
-      		else if (key=='toucheable') {
-      			bobj.toucheable=val;
-      			bodies[id]=bobj;
-      			return;
       		}
       		else if (key=='enableSleep') {
       			var b=bodyById(id);
@@ -895,7 +911,7 @@ var BOXY=function(tid,stepTime) {
 				if (mouseJoints[tid].b!=null) {
 					var bobj=bodies[mouseJoints[tid].b.GetUserData()]; 
 					if (bobj!=null) {
-						if (bobj.toucheable) {         			
+						if (bobj.touchable) {
 							mouseJoints[tid].mj = makeMouseJoint(mouseJoints[tid]);
 							bodyTouchCallback(bobj);	
 							bobj.touched=true;	
@@ -1249,10 +1265,11 @@ var BOXY=function(tid,stepTime) {
       	}
       	function getCanvasPosition() {
       		return canvasPosition;
-      	}1
+      	}
       	
       	if (typeof canvasid!='undefined') makeWorldBox();
       	return {
+      		updateTouches: updateTouches,
 			setUpdate: setUpdate,
 			setDebug: setDebug,
 			bodyFactory: bodyFactory,
@@ -1260,6 +1277,7 @@ var BOXY=function(tid,stepTime) {
 			clone : clone,
 			removeBody : removeBody,
 			bodyById : bodyById,
+			makeWeldJoint: makeWeldJoint,
 			makeRevoluteJoint: makeRevoluteJoint,
 			makePulleyJoint : makePulleyJoint,
 			makeDistanceJoint: makeDistanceJoint,
