@@ -3,7 +3,7 @@ boxy
 
 Handy dandy wrapper library for box2d.
 
-I created this library as a method of simplify the instantiation and creation of box2d world and objects in HTML5 - friendly browsers.
+I created this library as a method of simplifying the instantiation and creation of box2d world and objects in HTML5 - friendly browsers.
 
 The idea is to abstract things to the point where you can interact with the 2d objects in HTML5 coordinate space and using HTML5 nominclature.
 
